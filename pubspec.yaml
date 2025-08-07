@@ -36,6 +36,13 @@ dependencies:
   cupertino_icons: ^1.0.8
   get: ^4.7.2
   connectivity_plus: ^6.1.4
+#  qr_code_scanner: ^1.0.1
+  permission_handler: any
+  simple_barcode_scanner: ^0.3.0
+  http: ^1.4.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:

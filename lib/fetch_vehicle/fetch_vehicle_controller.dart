@@ -10,11 +10,8 @@ class FetchVehicleController extends GetxController {
   final RxnString selectedVoucher = RxnString();
 
 
-  final RxList<String> voucherList = [
-      'Discount10',
-      'Fuel50',
-      'Holiday100',
-     ].obs;
+
+  final RxList voucherList = [].obs;
 
   // @override
   // void onInit() {

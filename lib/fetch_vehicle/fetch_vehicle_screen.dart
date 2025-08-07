@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 import '../login/login_screen.dart';
 import 'fetch_vehicle_controller.dart';
@@ -126,9 +128,43 @@ class FetchVehicleScreen extends StatelessWidget {
                   prefixIcon: Icon(Icons.key_outlined),
                   suffixIcon: IconButton(
                     icon: Icon(Icons.qr_code_scanner),
-                    onPressed: () {
-                      controller.scanBarcode(); // Your barcode scan logic
-                    },
+                      onPressed: () async {
+                        var status = await Permission.camera.status;
+
+                        if (!status.isGranted) {
+                          status = await Permission.camera.request();
+                        }
+
+                        if (status.isGranted) {
+
+                          String? res = await SimpleBarcodeScanner.scanBarcode(
+                            context,
+                            barcodeAppBar: const BarcodeAppBar(
+                              appBarTitle: 'Test',
+                              centerTitle: false,
+                              enableBackButton: true,
+                              backButtonIcon: Icon(Icons.arrow_back_ios),
+                            ),
+                            isShowFlashIcon: true,
+                            delayMillis: 500,
+                            cameraFace: CameraFace.back,
+                            scanFormat: ScanFormat.ONLY_BARCODE,
+                          );
+
+                          if (res is String && res.isNotEmpty) {
+                            controller.barcodeController.text = res;
+                          }
+
+                          print('getCode...$res');
+
+                        } else {
+                          Get.snackbar(
+                            "Permission Denied",
+                            "Camera permission is needed to scan barcode",
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                        }
+                      }
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -153,10 +189,10 @@ class FetchVehicleScreen extends StatelessWidget {
                     underline: SizedBox(),
                     hint: Text('Select Voucher', style: TextStyle(color: Colors.grey),),
                     icon: Icon(Icons.arrow_drop_down),
-                    items: controller.voucherList.map((String value) {
+                    items: controller.voucherList.map((dynamic value) {
                       return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
+                        value: value['id'].toString(),
+                        child: Text(value['title'].toString()),
                       );
                     }).toList(),
                     onChanged: (newValue) {
