@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
-        android:label="retailers"
+        android:label="Retailers"
         android:name="${applicationName}"
         android:requestLegacyExternalStorage="true"
         android:enableOnBackInvokedCallback="true"
