@@ -12,6 +12,7 @@ class LoginScreen extends StatelessWidget {
     return Obx(() {
       //controller.checkInternet();
       return Scaffold(
+        backgroundColor: Colors.white,
         body: Stack(
           children: [
             // Your main UI content

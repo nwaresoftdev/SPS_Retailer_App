@@ -16,8 +16,7 @@ void main() async {
 
   // final network = Get.put(NetworkService());
   // final connected = await network.checkConnection();
-  runApp(
-      GetMaterialApp(
+  runApp(GetMaterialApp(
       debugShowCheckedModeBanner: false,
       initialBinding: LoginBinding(),
         home: true ? LoginScreen() : NoInternetScreen(), // 👈 control here
