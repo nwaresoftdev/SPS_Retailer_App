@@ -10,16 +10,12 @@ import 'login/login_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Get.putAsync(() => NetworkService().init());
-
   await Hive.initFlutter();
   await Hive.openBox('userBox');
-
-  // final network = Get.put(NetworkService());
-  // final connected = await network.checkConnection();
   runApp(GetMaterialApp(
       debugShowCheckedModeBanner: false,
       initialBinding: LoginBinding(),
-        home: true ? LoginScreen() : NoInternetScreen(), // 👈 control here
+        home: LoginScreen()
   )
   );
 }

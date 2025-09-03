@@ -64,13 +64,19 @@ class LoginScreen extends StatelessWidget {
                         : SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: controller.login,
+                          onPressed:(){
+                            if(networkService.isOnline.value){
+                              controller.login();
+                            }
+                          } ,
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            backgroundColor: Colors.indigo,
+                            backgroundColor:
+                            networkService.isOnline.value
+                            ?Colors.indigo:Colors.grey,
                             //fixedSize: Size(MediaQuery.of(context).size.width, 45)
                           ),
                           child: const Text(

@@ -69,7 +69,13 @@ class FetchVehicleController extends GetxController {
       isSelected: activeBarCode
     );
 
-    print('activeBarCode...$activeBarCode');
+    print('activeBarCode...$activeBarCode....');
+    if(!activeBarCode){
+      print('vehicleNumber....${vehicleController.text.trim()}');
+    }
+    else{
+      print('barcodeNo....${barcodeController.text.trim()}');
+    }
 
     if (response != null && !response['error']) {
        isLoading.value = false;
@@ -80,6 +86,7 @@ class FetchVehicleController extends GetxController {
         getData.forEach((key, value) {
          abc.add(value);
        },);
+
 
         activeBarCode
         ?vehicalList.assignAll(
@@ -141,14 +148,15 @@ class FetchVehicleController extends GetxController {
     required String token,
   })
   async {
+
     if (!await isConnected()) {
       Get.snackbar("No Internet", "Please check your connection.");
       return null;
     }
 
     final url =  isSelected
-        ? 'http://192.168.1.14/dolphin-aps/public/api/searchByBarcode?parking_site_id=$parkingSiteId&barcode=$barcodeNo'
-        :'http://192.168.1.14/dolphin-aps/public/api/searchByVehicleNumber?parking_site_id=$parkingSiteId&vehicle_number=$vehicleNumber';
+        ? 'http://192.168.1.31/dolphin-aps/public/api/searchByBarcode?parking_site_id=$parkingSiteId&barcode=$barcodeNo'
+        :'http://192.168.1.31/dolphin-aps/public/api/searchByVehicleNumber?parking_site_id=$parkingSiteId&vehicle_number=$vehicleNumber';
 
 
     final token = '1|KkllzTryrTkAbjGfvinbnhMQIY8m9CJXwY0N7EOy';

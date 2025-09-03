@@ -6,11 +6,12 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 import '../login/login_screen.dart';
+import '../utills/network_service.dart';
 import 'fetch_vehicle_controller.dart';
 
 class FetchVehicleScreen extends StatelessWidget {
   final controller = Get.put(FetchVehicleController());
-
+  final networkService = Get.put(NetworkService());
    FetchVehicleScreen({super.key}); // 👈 No binding class
 
 
@@ -48,46 +49,31 @@ class FetchVehicleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //controller.checkInternet();
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title:  Text('Retailer App',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,),),
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        backgroundColor: Colors.grey.withOpacity(0.2),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(5),
-            child: IconButton(
-              icon: const Icon(Icons.power_settings_new,size: 30,),
-              onPressed: () {
-                showLogoutDialog();
-              },
-            ),
-          )
-        ],
-      ),
-      body: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(10,10,10,0),
-        child: Stack(
-          children: [
-            // Obx(() {
-            //   return controller.showAnimation.value
-            //     ? Center(
-            //     child: Container(
-            //      // color: Colors.black.withOpacity(0.5), // Optional overlay
-            //      child: Lottie.asset(
-            //       'assets/voucher.json', // your animation file
-            //       width: 300,
-            //       height: 300,
-            //       repeat: false,
-            //     ),
-            //   ),
-            // )
-            //     : SizedBox.shrink();
-            // }),
-            Column(
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            title:  Text('Retailer App',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,),),
+            automaticallyImplyLeading: false,
+            centerTitle: true,
+            backgroundColor: Colors.grey.withOpacity(0.2),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.all(5),
+                child: IconButton(
+                  icon: const Icon(Icons.power_settings_new,size: 30,),
+                  onPressed: () {
+                    showLogoutDialog();
+                  },
+                ),
+              )
+            ],
+          ),
+          body: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(10,10,10,0),
+            child: Column(
               children: [
                 TextField(
                   controller: controller.vehicleController,
@@ -163,41 +149,44 @@ class FetchVehicleScreen extends StatelessWidget {
                           ?IconButton(
                           icon: Icon(Icons.qr_code_scanner),
                           onPressed: () async {
-                            var status = await Permission.camera.status;
+                            if(networkService.isOnline.value){
+                              var status = await Permission.camera.status;
 
-                            if (!status.isGranted) {
-                              status = await Permission.camera.request();
-                            }
-
-                            if (status.isGranted) {
-
-                              String? res = await SimpleBarcodeScanner.scanBarcode(
-                                context,
-                                barcodeAppBar: const BarcodeAppBar(
-                                  appBarTitle: 'Test',
-                                  centerTitle: false,
-                                  enableBackButton: true,
-                                  backButtonIcon: Icon(Icons.arrow_back_ios),
-                                ),
-                                isShowFlashIcon: true,
-                                delayMillis: 500,
-                                cameraFace: CameraFace.back,
-                                scanFormat: ScanFormat.ONLY_BARCODE,
-                              );
-
-                              if (res is String && res.isNotEmpty) {
-                                controller.barcodeController.text = res;
-                                controller.barcodeText.value = res;
+                              if (!status.isGranted) {
+                                status = await Permission.camera.request();
                               }
 
-                              print('getCode...$res');
+                              if (status.isGranted) {
 
-                            } else {
-                              Get.snackbar(
-                                "Permission Denied",
-                                "Camera permission is needed to scan barcode",
-                                snackPosition: SnackPosition.BOTTOM,
-                              );
+                                String? res = await SimpleBarcodeScanner.scanBarcode(
+                                  context,
+                                  barcodeAppBar: const BarcodeAppBar(
+                                    appBarTitle: 'Test',
+                                    centerTitle: false,
+                                    enableBackButton: true,
+                                    backButtonIcon: Icon(Icons.arrow_back_ios),
+                                  ),
+                                  isShowFlashIcon: true,
+                                  delayMillis: 500,
+                                  cameraFace: CameraFace.back,
+                                  scanFormat: ScanFormat.ONLY_BARCODE,
+                                );
+
+                                if (res is String && res.isNotEmpty) {
+                                  controller.barcodeController.text = res;
+                                  controller.barcodeText.value = res;
+                                }
+
+                                print('getCode...$res');
+
+                              }
+                              else {
+                                Get.snackbar(
+                                  "Permission Denied",
+                                  "Camera permission is needed to scan barcode",
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                              }
                             }
                           }
                       )
@@ -224,22 +213,32 @@ class FetchVehicleScreen extends StatelessWidget {
                 Obx(() {
                   return Visibility(
                     visible:controller.vehicalList.isNotEmpty,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                            onPressed: (){
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          InkWell(
+                            onTap: () {
                               controller.clear();
                             },
-                            style: TextButton.styleFrom(
-                              backgroundColor: Colors.grey.withOpacity(0.2),
-                              // shape: RoundedRectangleBorder(
-                              //   borderRadius: BorderRadius.circular(15)
-                              // )
+
+                            borderRadius: BorderRadius.circular(15), // same as shape
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                'Reset',
+                                style: TextStyle(fontWeight: FontWeight.bold), // add color for visibility
+                              ),
                             ),
-                            child: Text('Reset')
-                        )
-                      ],
+                          )
+
+                        ],
+                      ),
                     ),
                   );
                 },),
@@ -275,10 +274,15 @@ class FetchVehicleScreen extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed:(){
-                        controller.fetchVehical(context: context);
+                     if (networkService.isOnline.value){
+                           controller.fetchVehical(context: context);
+                       }
                       } ,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor:
+                        networkService.isOnline.value
+                        ?Colors.green
+                        :Colors.grey,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -296,22 +300,27 @@ class FetchVehicleScreen extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed:(){
-                        if(controller.selectedVoucher.value == null){
-                          Get.snackbar(
-                            "Failed",
-                            "Please Select Voucher",
-                            snackPosition: SnackPosition.TOP,
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white
-                          );
+                        print("networkValue...${networkService.isOnline.value}");
+                        if (networkService.isOnline.value){
+                          if(controller.selectedVoucher.value == null){
+                            Get.snackbar(
+                                "Failed",
+                                "Please Select Voucher",
+                                snackPosition: SnackPosition.TOP,
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white
+                            );
+                          }
+                          else{
+                            showVoucherDialog();
+                          }
                         }
                         else{
-                          showVoucherDialog();
+                          print("No Internet");
                         }
                       } ,
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-
                         controller.selectedVoucher.value == null
                         ?Colors.grey
                         :Colors.green,
@@ -333,9 +342,28 @@ class FetchVehicleScreen extends StatelessWidget {
                 const SizedBox(height: 20),
               ],
             )
-          ],
-        )
-      ),
+          ),
+        ),
+        // 🔴 Network Banner at the top
+        Obx(() {
+          return
+            !networkService.isOnline.value
+                ?Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                width: double.infinity,
+                color: Colors.redAccent,
+                padding: const EdgeInsets.all(10),
+                child: Text(
+                  "No Internet Connection",
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            )
+                :Container();
+        },)
+      ],
     );
   }
 
