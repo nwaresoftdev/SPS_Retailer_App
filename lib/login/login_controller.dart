@@ -16,8 +16,12 @@ class LoginController extends GetxController {
   final passwordController = TextEditingController(text: 'Secure@123');
   RxBool isLoading = false.obs;
   final String loginApi = 'https://crm.secureparking.co.in/retailer/login_offers/';
+  // final RxList<String> countries = ['India', 'Cambodia'].obs;
+  final RxString isSelectedCountry = ''.obs;
+
 
   void login() async {
+
     isLoading.value = true;
     final netService = Get.put(NetworkService());
     bool connected = await netService.checkConnection();
@@ -51,25 +55,38 @@ class LoginController extends GetxController {
     );
 
     if (response != null) {
-      Get.snackbar("Success", "Login Successful",
-          backgroundColor: Colors.green, colorText: Colors.white);
+
       isLoading.value = false;
+      List getOffer = response['offers']??[];
 
-     await ApiHelper().box.put('username', username);
+      if(getOffer.isNotEmpty){
+        String? getUrl = ApiHelper().conutryUrl[isSelectedCountry.value]??"";
+        await ApiHelper().box.put('username', username);
         ApiHelper().box.put('pwd', password);
-       ApiHelper().box.put('isLogin', true);
+        ApiHelper().box.put('isLogin', true);
+        ApiHelper().box.put('country_url', getUrl);
+        ApiHelper().box.put('country', isSelectedCountry.value);
+        FetchVehicleController controller = Get.put(FetchVehicleController());
+        controller.voucherList.value = getOffer;
 
-       List getOffer = response['offers']??[];
+        // Navigate to next screen
+        Get.offAll(() => FetchVehicleScreen());
+        Get.snackbar("Success", "Login Successful",
+            backgroundColor: Colors.green, colorText: Colors.white,duration: Duration(seconds: 1));
+        isSelectedCountry.value = "";
+      }
+      else{
+        Get.snackbar("Invalid", "Try Again",
+            backgroundColor: Colors.red, colorText: Colors.white,duration: Duration(seconds: 1));
+      }
 
-      FetchVehicleController controller = Get.put(FetchVehicleController());
-      controller.voucherList.value = getOffer;
 
-      // Navigate to next screen
-      Get.offAll(() => FetchVehicleScreen());
     }
     else{
       isLoading.value = false;
       ApiHelper().box.put('isLogin', false);
+      Get.snackbar("Error", "Try Again",
+          backgroundColor: Colors.red, colorText: Colors.white,duration: Duration(seconds: 1));
     }
   }
 
@@ -112,12 +129,9 @@ class LoginController extends GetxController {
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
-        final error = jsonDecode(response.body)['error'] ?? 'Failed';
-        Get.snackbar("Error", error, backgroundColor: Colors.red, colorText: Colors.white);
         return null;
       }
     } catch (e) {
-      Get.snackbar("Error", "Exception: $e", backgroundColor: Colors.red, colorText: Colors.white);
       return null;
     }
   }

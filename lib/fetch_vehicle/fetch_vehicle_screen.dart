@@ -15,36 +15,6 @@ class FetchVehicleScreen extends StatelessWidget {
    FetchVehicleScreen({super.key}); // 👈 No binding class
 
 
-  void showLogoutDialog() {
-    Get.dialog(
-      AlertDialog(
-        shape:RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5)
-        ) ,
-        title: const Text("Logout"),
-        content: const Text("Are you sure you want to logout?"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Get.back(); // Close dialog
-            },
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              Get.back(); // Close dialog first
-              Get.offAll(() => LoginScreen()); // Navigate to Login
-
-              controller.clear();
-            },
-            child: const Text("Logout"),
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +34,7 @@ class FetchVehicleScreen extends StatelessWidget {
                 child: IconButton(
                   icon: const Icon(Icons.power_settings_new,size: 30,),
                   onPressed: () {
-                    showLogoutDialog();
+                    showLogoutDialog(context);
                   },
                 ),
               )
@@ -77,11 +47,13 @@ class FetchVehicleScreen extends StatelessWidget {
               children: [
                 TextField(
                   controller: controller.vehicleController,
+                  style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),
                   inputFormatters: [
                     UpperCaseTextFormatter(), // 👈 Force uppercase
                   ],
                   decoration: InputDecoration(
                     hintText: "Enter Vehicle No",
+                    hintStyle: TextStyle(fontWeight: FontWeight.bold),
                     filled: true,
                     fillColor: Colors.white,
                     prefixIcon: Icon(Icons.directions_car),
@@ -139,6 +111,7 @@ class FetchVehicleScreen extends StatelessWidget {
                   inputFormatters: [
                     UpperCaseTextFormatter(), // 👈 Makes input uppercase
                   ],
+                  style: TextStyle(fontSize: 17,fontWeight: FontWeight.bold),
                   decoration: InputDecoration(
                     hintText: "Scan the Bar Code",
                     filled: true,
@@ -225,7 +198,7 @@ class FetchVehicleScreen extends StatelessWidget {
 
                             borderRadius: BorderRadius.circular(15), // same as shape
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
                                 color: Colors.grey.withOpacity(0.3),
                                 borderRadius: BorderRadius.circular(20),
@@ -308,11 +281,22 @@ class FetchVehicleScreen extends StatelessWidget {
                                 "Please Select Voucher",
                                 snackPosition: SnackPosition.TOP,
                                 backgroundColor: Colors.red,
-                                colorText: Colors.white
+                                colorText: Colors.white,
+                                duration: Duration(seconds: 1)
+                            );
+                          }
+                          else if(controller.mNoController.value.text.isEmpty){
+                            Get.snackbar(
+                                "Failed",
+                                "Please Enter Mobile Number",
+                                snackPosition: SnackPosition.TOP,
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                                duration: Duration(seconds: 1)
                             );
                           }
                           else{
-                            showVoucherDialog();
+                            controller.proceed();
                           }
                         }
                         else{
@@ -367,36 +351,11 @@ class FetchVehicleScreen extends StatelessWidget {
     );
   }
 
-  void showVoucherDialog() {
-    Get.dialog(
-      Center(
-        child: SizedBox(
-          width: 250,
-          height: 250,
-          child:
-          //Image.asset('assets/images/voucher.gif')
-          Lottie.asset(
-            'assets/voucher.json',
-            repeat: false,
-            onLoaded: (composition) {
-              Future.delayed(composition.duration, () {
-                Get.back();
-                controller.proceed();
-              });
-            },
-          ),
-        ),
-      ),
-      barrierDismissible: false, // Prevent user from closing manually
-    );
-  }
-
-
 
   Widget buildVehicleCards(dynamic vehicle) {
       return Card(
         margin: const EdgeInsets.symmetric(horizontal: 8,),
-        elevation: 4,
+        elevation: 6,
         color: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -413,36 +372,176 @@ class FetchVehicleScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 5),
+              Text("Barcode: ${vehicle['entry_barcode'] ?? '-'}"),
+              const SizedBox(height: 5),
               Text("In Time: ${vehicle['vehicle_in_time'] ?? '-'}"),
              // Text("Gate ID: ${vehicle['vehicle_in_gate_id'] ?? '-'}"),
-              SizedBox(height: 5,),
-              DropdownButton<String>(
-                value: controller.selectedVoucher.value,
-                isExpanded: true,
-                iconEnabledColor: Colors.black,
-                dropdownColor: Colors.white,
-                underline: Container(
-                  height: 1,
-                  color: Colors.grey, // Change this to your desired underline color
+             //  SizedBox(height: 5,),
+              SizedBox(
+                height: 35,
+                child: DropdownButton<String>(
+                  value: controller.selectedVoucher.value,
+                  isExpanded: true,
+                  iconEnabledColor: Colors.black,
+                  dropdownColor: Colors.white,
+                  underline: Container(
+                    height: 1,
+                    color: Colors.black, // Change this to your desired underline color
+                  ),
+                  hint: Text('Select Voucher', style: TextStyle(color: Colors.black),),
+                  icon: Icon(Icons.arrow_drop_down),
+                  items: controller.voucherList.map((dynamic value) {
+                    return DropdownMenuItem<String>(
+                      value: value['id'].toString(),
+                      child: Text(value['title'].toString()),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    controller.selectedVoucher.value = newValue!;
+                    print('controller.selectedVoucher?.value...${controller.selectedVoucher?.value}');
+                   controller.isActiveMno.value = true;
+                  },
                 ),
-                hint: Text('Select Voucher', style: TextStyle(color: Colors.black),),
-                icon: Icon(Icons.arrow_drop_down),
-                items: controller.voucherList.map((dynamic value) {
-                  return DropdownMenuItem<String>(
-                    value: value['id'].toString(),
-                    child: Text(value['title'].toString()),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  controller.selectedVoucher.value = newValue!;
-                  print('controller.selectedVoucher?.value...${controller.selectedVoucher?.value}');
-                },
-              )
+              ),
+              const SizedBox(height: 5),
+              Visibility(
+                visible: controller.isActiveMno.value,
+                child: SizedBox(
+                  height: 30,
+                  child: TextField(
+                    keyboardType: TextInputType.phone,
+                    controller:controller.mNoController,
+                    style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),
+                    decoration: InputDecoration(
+                      hintText: "Enter Mobile Number",
+                      border: UnderlineInputBorder(borderSide: BorderSide(color:Colors.black,width: 1)),
+                    ),
+                    onChanged: (value) {
+                      controller.mNoText.value = value;
+                    },
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       );
   }
+  void showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Container(
+            width: 350,
+            height: 230,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFFF7F9FC),
+                  Color(0xFFEAF0FF),
+                ],
+              ),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.logout_rounded,
+                  size: 50,
+                  color: Colors.black87,
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Logout",
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Are you sure you want to logout?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          "Cancel",
+                          style: TextStyle(
+                            color: Colors.indigo,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.indigo,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 28, vertical: 12),
+                        ),
+                        onPressed: () {
+                          // Navigator.pop(context);
+                          // Add your logout logic here
+                          print("Logged out");
+                          Get.back(); // Close dialog first
+                          Get.offAll(() => LoginScreen()); // Navigate to Login
+                          Get.snackbar(
+                              "Logout",
+                              "Logout Successfully",
+                              snackPosition: SnackPosition.TOP,
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                              duration: Duration(seconds: 1)
+                          );
+                          // controller.clear();
+                        },
+                        child: const Text(
+                          "Logout",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 
 }
 class UpperCaseTextFormatter extends TextInputFormatter {

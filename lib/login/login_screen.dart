@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:retailers/utills/api_helper.dart';
 import '../utills/network_service.dart';
 import 'login_controller.dart';
 
@@ -9,12 +10,47 @@ class LoginScreen extends StatelessWidget {
   final networkService = Get.put(NetworkService());
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return Obx(() {
       //controller.checkInternet();
       return Scaffold(
         backgroundColor: Colors.white,
         body: Stack(
           children: [
+            
+            /*SafeArea(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                 SizedBox(
+          width: 200, // tweak as you like
+          child: DropdownButtonFormField<String>(
+            value: controller.isSelected.value,
+            items: controller.countries.value
+                .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                .toList(),
+            onChanged: (val) {
+              controller.isSelected.value = val??"";
+            },
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              // circular/pill border
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(width: 1),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(width: 2),
+              ),
+            ),
+            isExpanded: true,
+          ),
+        )
+                ],
+              ),
+            ),*/
+            
             // Your main UI content
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -30,7 +66,48 @@ class LoginScreen extends StatelessWidget {
                         // color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            width: screenWidth, // tweak as you like
+                            height: 40,
+                            alignment: Alignment.center,
+                            // color: Colors.yellow,
+                            child: DropdownButtonFormField<String>(
+                              hint: Text("Select Country"),
+                              value: controller.isSelectedCountry.value.isEmpty
+                                  ? null
+                                  : controller.isSelectedCountry.value, // null → show hint
+                              items: ApiHelper().conutryUrl.keys.toSet().toList().map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                              onChanged: (val) {
+                                if (val != null) {
+                                  controller.isSelectedCountry.value = val;
+                                  // print("SelectURl:- ${ApiHelper().conutryUrl[val]}");
+                                }
+                              },
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                // circular/pill border
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: const BorderSide(width: 1),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: const BorderSide(width: 1),
+                                ),
+                                prefixIcon: Icon(Icons.flag)
+                              ),
+                              isExpanded: true,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 20),
                     TextField(
                       controller: controller.usernameController,
                       decoration: InputDecoration(
@@ -58,15 +135,20 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height:MediaQuery.of(context).size.width * 0.1),
-
-                          controller.isLoading.value
-                          ? CircularProgressIndicator()
-                        : SizedBox(
+                    SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed:(){
                             if(networkService.isOnline.value){
-                              controller.login();
+                              if(controller.isSelectedCountry.value != ""){
+                                // 🔹 Close the keyboard
+                                FocusScope.of(context).unfocus();
+                                controller.login();
+                              }
+                              else{
+                                Get.snackbar("Invalid", "Please Select Country",
+                                    backgroundColor: Colors.red, colorText: Colors.white);
+                              }
                             }
                           } ,
                           style: ElevatedButton.styleFrom(
@@ -75,11 +157,15 @@ class LoginScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             backgroundColor:
-                            networkService.isOnline.value
-                            ?Colors.indigo:Colors.grey,
+                               networkService.isOnline.value
+                                ?controller.isSelectedCountry.value != ""
+                                ?Colors.indigo:Colors.grey
+                                :Colors.grey,
                             //fixedSize: Size(MediaQuery.of(context).size.width, 45)
                           ),
-                          child: const Text(
+                          child:  controller.isLoading.value
+                            ?CircularProgressIndicator(color: Colors.white,)
+                          : Text(
                             "Login",
                             style: TextStyle(
                               color: Colors.white,

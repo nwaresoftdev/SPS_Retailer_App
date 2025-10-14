@@ -13,6 +13,27 @@ class ApiHelper {
   ApiHelper._internal();
 
   var box = Hive.box('userBox');
+  static const String token = '1|KkllzTryrTkAbjGfvinbnhMQIY8m9CJXwY0N7EOy'; // replace with your actual token if needed
+  static const String parkingSiteId = '3';
+  static const String offerRedeemApiUrl = 'https://crm.secureparking.co.in/customer/accept_offer_redeem/';
+
+  /// Prod Url
+  final RxMap<String,String> conutryUrl =
+      {
+        "India":"https://aps.secureparking.co.in/",
+        "Cambodia":"https://aps.secureparking.com.kh/",
+      }.obs;
+
+  final String storeRetailerAppVoucherDetail = "storeRetailerAppVoucherDetail";
+  final String searchByBarcode = "searchByBarcode";
+  final String searchByVehicleNumber = "searchByVehicleNumber";
+
+
+
+  /// Uat Url
+  final String baseUrl = "http://192.168.1.14/dolphin-aps/public/api/";
+  final String baseUrlVoucherDetail = "http://192.168.1.14/dolphin-retailer/public/api/";
+
 
 
 

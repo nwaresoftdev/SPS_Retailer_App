@@ -16,7 +16,6 @@ void main() async {
       debugShowCheckedModeBanner: false,
       initialBinding: LoginBinding(),
         home: LoginScreen()
-  )
-  );
+  ));
 }
 
