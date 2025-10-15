@@ -241,12 +241,11 @@ class FetchVehicleScreen extends StatelessWidget {
 
                 Obx(() {
                   return controller.vehicalList.isEmpty
-                      ? controller.isLoading.value
-                      ?CircularProgressIndicator()
-                      :SizedBox(
+                      ?SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed:(){
+                        FocusScope.of(context).unfocus();
                      if (networkService.isOnline.value){
                            controller.fetchVehical(context: context);
                        }
@@ -261,18 +260,20 @@ class FetchVehicleScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
+                      child:
+                      controller.isLoading.value
+                      ?CircularProgressIndicator(color: Colors.white,)
+                      :Text(
                         "Search Vehicle",
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
                       ),
                     ),
                   )
-                      :controller.isLoading.value
-                      ?CircularProgressIndicator()
                       :SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed:(){
+                        FocusScope.of(context).unfocus();
                         print("networkValue...${networkService.isOnline.value}");
                         if (networkService.isOnline.value){
                           if(controller.selectedVoucher.value == null){
@@ -316,7 +317,9 @@ class FetchVehicleScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
+                      child: controller.isLoading.value
+                        ?CircularProgressIndicator(color: Colors.white,)
+                        :Text(
                         "Proceed",
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
                       ),

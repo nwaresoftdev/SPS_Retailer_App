@@ -59,7 +59,7 @@ class LoginController extends GetxController {
       isLoading.value = false;
       List getOffer = response['offers']??[];
 
-      if(getOffer.isNotEmpty){
+      if(/*getOffer.isNotEmpty*/  true){
         String? getUrl = ApiHelper().conutryUrl[isSelectedCountry.value]??"";
         await ApiHelper().box.put('username', username);
         ApiHelper().box.put('pwd', password);
@@ -67,7 +67,7 @@ class LoginController extends GetxController {
         ApiHelper().box.put('country_url', getUrl);
         ApiHelper().box.put('country', isSelectedCountry.value);
         FetchVehicleController controller = Get.put(FetchVehicleController());
-        controller.voucherList.value = getOffer;
+        // controller.voucherList.value = getOffer;
 
         // Navigate to next screen
         Get.offAll(() => FetchVehicleScreen());

@@ -18,13 +18,68 @@ class FetchVehicleController extends GetxController {
   final TextEditingController mNoController = TextEditingController();
 
   final RxnString selectedVoucher = RxnString();
-  final RxList voucherList = [].obs;
+  final RxList voucherList1 = [].obs;
   RxList<dynamic> vehicalList = [].obs;
   RxBool isLoading = false.obs;
   RxBool isShowVocher = false.obs;
   RxString barcodeText = ''.obs;
   RxString vehicalText = ''.obs;
   RxString mNoText = ''.obs;
+
+
+  final RxList voucherList = [
+    {
+      "id": 4910,
+      "title": "Bomby Liquor",
+      "description": "Buy 3 and get 1 half price",
+      "valid_from": "2025-08-07",
+      "valid_until": "2025-09-25",
+      "offer_type": "percent",
+      "offer_value": "3",
+      "offer_mode": "Offer"
+    },
+    {
+      "id": 4911,
+      "title": "Pizza Hub",
+      "description": "Get 25% off on all large pizzas",
+      "valid_from": "2025-09-01",
+      "valid_until": "2025-09-30",
+      "offer_type": "percent",
+      "offer_value": "25",
+      "offer_mode": "Offer"
+    },
+    {
+      "id": 4912,
+      "title": "Fuel Saver",
+      "description": "Save ₹50 on refilling above ₹1000",
+      "valid_from": "2025-07-15",
+      "valid_until": "2025-12-31",
+      "offer_type": "flat",
+      "offer_value": "50",
+      "offer_mode": "Offer"
+    },
+    {
+      "id": 4913,
+      "title": "Cafe Aroma",
+      "description": "Buy 2 coffees, get 1 free",
+      "valid_from": "2025-08-10",
+      "valid_until": "2025-11-10",
+      "offer_type": "free",
+      "offer_value": "1",
+      "offer_mode": "Offer"
+    },
+    {
+      "id": 4914,
+      "title": "Movie Magic",
+      "description": "Get ₹100 cashback on 2 movie tickets",
+      "valid_from": "2025-10-01",
+      "valid_until": "2025-11-01",
+      "offer_type": "cashback",
+      "offer_value": "100",
+      "offer_mode": "Offer"
+    },
+  ].obs;
+
 
   RxBool isLoadingProceed = false.obs;
 
@@ -35,8 +90,8 @@ class FetchVehicleController extends GetxController {
   @override
   void onInit() {
     // TODO: implement onInit
-    // vehicleController.clear();
-    // barcodeController.clear();
+    vehicleController.clear();
+    barcodeController.clear();
     super.onInit();
   }
 
