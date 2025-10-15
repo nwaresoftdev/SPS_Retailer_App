@@ -24,15 +24,15 @@ class ApiHelper {
         "Cambodia":"https://aps.secureparking.com.kh/",
       }.obs;
 
-  final String storeRetailerAppVoucherDetail = "storeRetailerAppVoucherDetail";
-  final String searchByBarcode = "searchByBarcode";
-  final String searchByVehicleNumber = "searchByVehicleNumber";
+  final String voucherDetailEndPoint = "api/storeRetailerAppVoucherDetail";
+  final String barcodeEndPoint = "api/searchByBarcode";
+  final String vehicleNumberEndPoint = "api/searchByVehicleNumber";
 
 
 
   /// Uat Url
-  final String baseUrl = "http://192.168.1.14/dolphin-aps/public/api/";
-  final String baseUrlVoucherDetail = "http://192.168.1.14/dolphin-retailer/public/api/";
+  final String baseUrl = "http://192.168.1.14/dolphin-aps/public/";
+  final String baseUrlVoucherDetail = "http://192.168.1.14/dolphin-retailer/public/";
 
 
 

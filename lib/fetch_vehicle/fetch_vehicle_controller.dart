@@ -156,6 +156,7 @@ class FetchVehicleController extends GetxController {
         List<dynamic> storeData = getData.values.toSet().toList();
 
         print('storeData....$storeData');
+        vehicalList.clear();
 
         activeBarCode
             ? vehicalList.assignAll(storeData
@@ -314,14 +315,14 @@ class FetchVehicleController extends GetxController {
 
     /// UAT
     final url = isSelected
-        ? '${ApiHelper().baseUrl}searchByBarcode?parking_site_id=$parkingSiteId&barcode=$barcodeNo'
-        : '${ApiHelper().baseUrl}searchByVehicleNumber?parking_site_id=$parkingSiteId&vehicle_number=$vehicleNumber';
+        ? '${ApiHelper().baseUrl}${ApiHelper().barcodeEndPoint}?parking_site_id=$parkingSiteId&barcode=$barcodeNo'
+        : '${ApiHelper().baseUrl}${ApiHelper().vehicleNumberEndPoint}?parking_site_id=$parkingSiteId&vehicle_number=$vehicleNumber';
 
     /// Prod
-    //String baseUrl = await ApiHelper().box.get('country_url');
+    // String baseUrl = await ApiHelper().box.get('country_url');
     // final url = isSelected
-    //     ? '${baseUrl}api/searchByBarcode?parking_site_id=$parkingSiteId&barcode=$barcodeNo'
-    //     : '${baseUrl}api/searchByVehicleNumber?parking_site_id=$parkingSiteId&vehicle_number=$vehicleNumber';
+    //     ? '$baseUrl${ApiHelper().barcodeEndPoint}?parking_site_id=$parkingSiteId&barcode=$barcodeNo'
+    //     : '$baseUrl${ApiHelper().vehicleNumberEndPoint}?parking_site_id=$parkingSiteId&vehicle_number=$vehicleNumber';
 
     try {
       // print('enter The Try');
@@ -372,7 +373,14 @@ class FetchVehicleController extends GetxController {
       return null;
     }
 
-    String apiUrl = '${ApiHelper().baseUrlVoucherDetail}storeRetailerAppVoucherDetail';
+
+    /// UAT
+    String apiUrl = '${ApiHelper().baseUrlVoucherDetail}${ApiHelper().voucherDetailEndPoint}';
+
+    /// prod
+    // String baseUrl = await ApiHelper().box.get('country_url');
+    // String apiUrl = '$baseUrl${ApiHelper().voucherDetailEndPoint}';
+
 
     final body = {
       "vehicle_details": vehicleDetails,
