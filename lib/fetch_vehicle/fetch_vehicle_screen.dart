@@ -42,6 +42,7 @@ class FetchVehicleScreen extends StatelessWidget {
           ),
           body: Container(
             width: double.infinity,
+            // height: MediaQuery.of(context).size.height,
             padding: const EdgeInsets.fromLTRB(10,10,10,0),
             child: Column(
               children: [
@@ -235,97 +236,98 @@ class FetchVehicleScreen extends StatelessWidget {
                 },),
 
 
-                controller.isShowVocher.value
-                    ?SizedBox()
-                    :Spacer(),
+                // controller.isShowVocher.value
+                //     ?SizedBox()
+                //     :Spacer(),
 
-                Obx(() {
-                  return controller.vehicalList.isEmpty
-                      ?SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed:(){
-                        FocusScope.of(context).unfocus();
-                     if (networkService.isOnline.value){
-                           controller.fetchVehical(context: context);
-                       }
-                      } ,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                        networkService.isOnline.value
-                        ?Colors.green
-                        :Colors.grey,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child:Obx(() {
+                      return controller.vehicalList.isEmpty
+                          ?controller.isLoading.value
+                          ?CircularProgressIndicator()
+                          :SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                            onPressed:(){
+                              FocusScope.of(context).unfocus();
+                              if (networkService.isOnline.value){
+                                controller.fetchVehical(context: context);
+                              }
+                            } ,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                              networkService.isOnline.value
+                                  ?Colors.green
+                                  :Colors.grey,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child:Text(
+                              "Search Vehicle",
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
+                            )
                         ),
-                      ),
-                      child:
-                      controller.isLoading.value
-                      ?CircularProgressIndicator(color: Colors.white,)
-                      :Text(
-                        "Search Vehicle",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
-                      ),
-                    ),
-                  )
-                      :SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed:(){
-                        FocusScope.of(context).unfocus();
-                        print("networkValue...${networkService.isOnline.value}");
-                        if (networkService.isOnline.value){
-                          if(controller.selectedVoucher.value == null){
-                            Get.snackbar(
-                                "Failed",
-                                "Please Select Voucher",
-                                snackPosition: SnackPosition.TOP,
-                                backgroundColor: Colors.red,
-                                colorText: Colors.white,
-                                duration: Duration(seconds: 1)
-                            );
-                          }
-                          else if(controller.mNoController.value.text.isEmpty){
-                            Get.snackbar(
-                                "Failed",
-                                "Please Enter Mobile Number",
-                                snackPosition: SnackPosition.TOP,
-                                backgroundColor: Colors.red,
-                                colorText: Colors.white,
-                                duration: Duration(seconds: 1)
-                            );
-                          }
-                          else{
-                            controller.proceed();
-                          }
-                        }
-                        else{
-                          print("No Internet");
-                        }
-                      } ,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                        controller.selectedVoucher.value == null
-                        ?Colors.grey
-                        :Colors.green,
-
-
-
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                      )
+                          : controller.isLoading.value
+                          ?CircularProgressIndicator()
+                          :SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed:(){
+                            FocusScope.of(context).unfocus();
+                            print("networkValue...${networkService.isOnline.value}");
+                            if (networkService.isOnline.value){
+                              if(controller.selectedVoucher.value == null){
+                                Get.snackbar(
+                                    "Failed",
+                                    "Please Select Voucher",
+                                    snackPosition: SnackPosition.TOP,
+                                    backgroundColor: Colors.red,
+                                    colorText: Colors.white,
+                                    duration: Duration(seconds: 1)
+                                );
+                              }
+                              else if(controller.mNoController.value.text.isEmpty){
+                                Get.snackbar(
+                                    "Failed",
+                                    "Please Enter Mobile Number",
+                                    snackPosition: SnackPosition.TOP,
+                                    backgroundColor: Colors.red,
+                                    colorText: Colors.white,
+                                    duration: Duration(seconds: 1)
+                                );
+                              }
+                              else{
+                                controller.proceed();
+                              }
+                            }
+                            else{
+                              print("No Internet");
+                            }
+                          } ,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                            controller.selectedVoucher.value == null
+                                ?Colors.grey
+                                :Colors.green,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child:Text(
+                            "Proceed",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
+                          ),
                         ),
-                      ),
-                      child: controller.isLoading.value
-                        ?CircularProgressIndicator(color: Colors.white,)
-                        :Text(
-                        "Proceed",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
-                      ),
-                    ),
-                  );
-                },),
+                      );
+                    },) ,
+                  ),
+                ),
                 const SizedBox(height: 20),
               ],
             )
@@ -416,7 +418,8 @@ class FetchVehicleScreen extends StatelessWidget {
                     controller:controller.mNoController,
                     style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),
                     decoration: InputDecoration(
-                      hintText: "Enter Mobile Number",
+                      hintText: "Enter Mobile Number *",
+                      hintStyle: TextStyle(fontWeight: FontWeight.normal),
                       border: UnderlineInputBorder(borderSide: BorderSide(color:Colors.black,width: 1)),
                     ),
                     onChanged: (value) {

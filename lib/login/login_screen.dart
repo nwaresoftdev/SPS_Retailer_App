@@ -135,7 +135,9 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height:MediaQuery.of(context).size.width * 0.1),
-                    SizedBox(
+                    controller.isLoading.value
+                    ?CircularProgressIndicator()
+                    :SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed:(){
@@ -163,9 +165,7 @@ class LoginScreen extends StatelessWidget {
                                 :Colors.grey,
                             //fixedSize: Size(MediaQuery.of(context).size.width, 45)
                           ),
-                          child:  controller.isLoading.value
-                            ?CircularProgressIndicator(color: Colors.white,)
-                          : Text(
+                          child:Text(
                             "Login",
                             style: TextStyle(
                               color: Colors.white,

@@ -114,6 +114,7 @@ class LoginController extends GetxController {
     }
 
     try {
+      print('Login Request:-$body __URL: $url');
       var request = http.MultipartRequest('POST', Uri.parse(url));
       request.headers['token'] = 'kql3_bhd45_mauq34';
 
@@ -124,7 +125,7 @@ class LoginController extends GetxController {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      print('Response: ${response.body}');
+      print('Login Response: ${response.body}');
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);

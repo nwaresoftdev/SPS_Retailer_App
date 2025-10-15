@@ -145,9 +145,8 @@ class FetchVehicleController extends GetxController {
     if (response != null && !response['error']) {
       isLoading.value = false;
       isShowVocher.value = true;
-      Map getData = response['results']['data'];
-      String errorSms =
-          ((response["results"] ?? "")["message"] ?? "Vehical Not Found");
+      dynamic getData = response['results']['data'];
+      String errorSms = ((response["results"] ?? "")["message"] ?? "Vehical Not Found");
 
       if (getData.isNotEmpty) {
         // getData.forEach((key, value) {
@@ -180,11 +179,13 @@ class FetchVehicleController extends GetxController {
           vehicalList.add(getFirstIndex);
           print('vehicalList..${vehicalList.length}');
         }
-      } else {
+      }
+      else {
         Get.snackbar("Error", errorSms,
             backgroundColor: Colors.red, colorText: Colors.white,duration: Duration(seconds: 1));
       }
-    } else {
+    }
+    else {
       isLoading.value = false;
       isShowVocher.value = false;
       String errorSms = response?['message'] ?? 'Not Valid';
