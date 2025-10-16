@@ -88,11 +88,18 @@ class FetchVehicleController extends GetxController {
   RxBool isActiveMno = false.obs;
 
   @override
-  void onInit() {
+  void onInit()  {
     // TODO: implement onInit
     vehicleController.clear();
     barcodeController.clear();
     super.onInit();
+    getParkingId();
+  }
+
+  Future<void> getParkingId() async {
+    ApiHelper().parkingSiteId =  await ApiHelper().box.get('site_id');
+    print('parkingSiteId__${ApiHelper().parkingSiteId}');
+
   }
 
   void fetchVehical({required BuildContext context}) async {
@@ -125,7 +132,7 @@ class FetchVehicleController extends GetxController {
 
     // Call API
     final response = await fetchVehicleDetails(
-        parkingSiteId: int.parse(ApiHelper.parkingSiteId),
+        parkingSiteId: int.parse(ApiHelper().parkingSiteId),
         vehicleNumber: vehicleController.text.trim(),
         barcodeNo: barcodeController.text.trim(),
         isSelected: activeBarCode);
@@ -222,7 +229,7 @@ class FetchVehicleController extends GetxController {
       String txnId = getFirstIndex['transaction_id'].toString() ?? "";
       String vehicle_num = getFirstIndex['vehicle_number'] ?? "";
       String barcode = getFirstIndex['entry_barcode'] ?? "";
-      String parking_site_id = ApiHelper.parkingSiteId;
+      String parking_site_id = ApiHelper().parkingSiteId;
 
       final result = await storeRetailerAppVoucherDetail(vehicleDetails: {
         "parking_site_id": parking_site_id,
@@ -309,18 +316,19 @@ class FetchVehicleController extends GetxController {
       return null;
     }
 
-    /// UAT
-    final url = isSelected
-        ? '${ApiHelper().baseUrl}${ApiHelper().barcodeEndPoint}?parking_site_id=$parkingSiteId&barcode=$barcodeNo'
-        : '${ApiHelper().baseUrl}${ApiHelper().vehicleNumberEndPoint}?parking_site_id=$parkingSiteId&vehicle_number=$vehicleNumber';
-
-    /// Prod
-    // String baseUrl = await ApiHelper().box.get('country_url');
-    // final url = isSelected
-    //     ? '$baseUrl${ApiHelper().barcodeEndPoint}?parking_site_id=$parkingSiteId&barcode=$barcodeNo'
-    //     : '$baseUrl${ApiHelper().vehicleNumberEndPoint}?parking_site_id=$parkingSiteId&vehicle_number=$vehicleNumber';
 
     try {
+      /// UAT
+      // final url = isSelected
+      //     ? '${ApiHelper().baseUrl}${ApiHelper().barcodeEndPoint}?parking_site_id=$parkingSiteId&barcode=$barcodeNo'
+      //     : '${ApiHelper().baseUrl}${ApiHelper().vehicleNumberEndPoint}?parking_site_id=$parkingSiteId&vehicle_number=$vehicleNumber';
+
+      /// Prod
+      String baseUrl = await ApiHelper().box.get('country_url');
+      final url = isSelected
+          ? '$baseUrl${ApiHelper().barcodeEndPoint}?parking_site_id=$parkingSiteId&barcode=$barcodeNo'
+          : '$baseUrl${ApiHelper().vehicleNumberEndPoint}?parking_site_id=$parkingSiteId&vehicle_number=$vehicleNumber';
+
       // print('enter The Try');
       print('RequestUrl...$url');
       final response = await http.get(
@@ -331,8 +339,7 @@ class FetchVehicleController extends GetxController {
         },
       );
 
-      print(
-          'response....URL..$url...statusCode...${response.statusCode}....${jsonDecode(response.body)}');
+      print('response....URL..$url...statusCode...${response.statusCode}....${jsonDecode(response.body)}');
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
@@ -340,8 +347,9 @@ class FetchVehicleController extends GetxController {
         ;
       }
     } catch (e) {
-      // Get.snackbar("Error", "Exception: $e",
-      //     backgroundColor: Colors.red, colorText: Colors.white);
+      print('error....$e');
+      Get.snackbar("Error", "Exception: $e",
+          backgroundColor: Colors.red, colorText: Colors.white);
       return null;
     }
   }
@@ -352,7 +360,7 @@ class FetchVehicleController extends GetxController {
     selectedVoucher.value = null;
     barcodeController.clear();
     isLoading.value = false;
-    ApiHelper().box.clear();
+    // ApiHelper().box.clear();
     barcodeText.value = '';
     vehicalText.value = '';
     mNoController.clear();
@@ -414,6 +422,14 @@ class FetchVehicleController extends GetxController {
         return jsonDecode(response.body);
       }
     } catch (e) {
+      print('error....$e');
+      Get.snackbar(
+          "Error",
+          "$e",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: Duration(seconds: 1)
+      );
       return null;
     }
   }

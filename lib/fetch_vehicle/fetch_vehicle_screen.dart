@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 import '../login/login_screen.dart';
+import '../utills/api_helper.dart';
 import '../utills/network_service.dart';
 import 'fetch_vehicle_controller.dart';
 
@@ -512,7 +513,7 @@ class FetchVehicleScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 28, vertical: 12),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
                           // Navigator.pop(context);
                           // Add your logout logic here
                           print("Logged out");
@@ -526,6 +527,7 @@ class FetchVehicleScreen extends StatelessWidget {
                               colorText: Colors.white,
                               duration: Duration(seconds: 1)
                           );
+                         await ApiHelper().box.clear();
                           // controller.clear();
                         },
                         child: const Text(

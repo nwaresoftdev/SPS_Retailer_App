@@ -50,18 +50,20 @@ class LoginController extends GetxController {
         'username': username,
         'password': password,
       },
-      // token: 'kql3_bhd45_mauq34', // Replace with your token
     );
 
     if (response != null && response.containsKey('offers')) {
         isLoading.value = false;
          List getOffer = response['offers']??[];
         String? getUrl = ApiHelper().conutryUrl[isSelectedCountry.value]??"";
+        print('country_url..$getUrl');
         await ApiHelper().box.put('username', username);
-        ApiHelper().box.put('pwd', password);
-        ApiHelper().box.put('isLogin', true);
-        ApiHelper().box.put('country_url', getUrl);
-        ApiHelper().box.put('country', isSelectedCountry.value);
+        await ApiHelper().box.put('pwd', password);
+        await ApiHelper().box.put('isLogin', true);
+        await ApiHelper().box.put('country_url', getUrl);
+        await ApiHelper().box.put('country', isSelectedCountry.value);
+        await ApiHelper().box.put('site_id', response['site_id']??'0');
+        ApiHelper().parkingSiteId = response['site_id']??'0';
         FetchVehicleController controller = Get.put(FetchVehicleController());
         controller.voucherList.value = getOffer;
 
@@ -74,7 +76,6 @@ class LoginController extends GetxController {
           Get.snackbar("Invalid", "no offer available.",
               backgroundColor: Colors.red, colorText: Colors.white,duration: Duration(seconds: 1));
         }
-
     }
     else{
       String errorSms = (response?['error'])??"Try Again";
@@ -109,6 +110,33 @@ class LoginController extends GetxController {
     }
 
     try {
+      print("➡️ Sending POST (form-data) to: ${ApiHelper.loginApi}");
+      print("📦 Request body: $body");
+
+      // 🔹 Use 'application/x-www-form-urlencoded' for form data
+      final response = await http.post(
+        Uri.parse(ApiHelper.loginApi),
+        headers: {
+          'Authorization': 'Bearer ${ApiHelper.token}',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'token': 'kql3_bhd45_mauq34',
+        },
+        body: body, // no jsonEncode here!
+      );
+
+      print("✅ Response Status: ${response.statusCode}");
+      print("✅ Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return jsonDecode(response.body);
+      }
+    } catch (e) {
+      return null;
+    }
+
+/*    try {
       print('Login Request:-$body __URL: $url');
       var request = http.MultipartRequest('POST', Uri.parse(url));
       request.headers['token'] = 'kql3_bhd45_mauq34';
@@ -129,7 +157,10 @@ class LoginController extends GetxController {
       }
     } catch (e) {
       return null;
-    }
+    }*/
+
+
+
   }
 
 
