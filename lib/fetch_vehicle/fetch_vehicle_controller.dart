@@ -18,7 +18,7 @@ class FetchVehicleController extends GetxController {
   final TextEditingController mNoController = TextEditingController();
 
   final RxnString selectedVoucher = RxnString();
-  final RxList voucherList1 = [].obs;
+  final RxList voucherList = [].obs;
   RxList<dynamic> vehicalList = [].obs;
   RxBool isLoading = false.obs;
   RxBool isShowVocher = false.obs;
@@ -27,7 +27,7 @@ class FetchVehicleController extends GetxController {
   RxString mNoText = ''.obs;
 
 
-  final RxList voucherList = [
+  final RxList voucherList1_Test = [
     {
       "id": 4910,
       "title": "Bomby Liquor",
@@ -117,16 +117,11 @@ class FetchVehicleController extends GetxController {
       return;
     }
 
-    if (vehicleController.text.trim().isNotEmpty &&
-        barcodeController.text.trim().isNotEmpty) {
-      isLoading.value = false;
-      Get.snackbar("Invalid", "Please Enter Details",
-          backgroundColor: Colors.red, colorText: Colors.white,duration: Duration(seconds: 1));
-      return;
+    if (vehicleController.text.trim().isNotEmpty && barcodeController.text.trim().isNotEmpty) {
+       vehicleController.clear();
     }
 
-    bool activeBarCode =
-        barcodeController.text.trim().isNotEmpty ? true : false;
+    bool activeBarCode = barcodeController.text.trim().isNotEmpty ? true : false;
 
     // Call API
     final response = await fetchVehicleDetails(
@@ -149,9 +144,6 @@ class FetchVehicleController extends GetxController {
       String errorSms = ((response["results"] ?? "")["message"] ?? "Vehical Not Found");
 
       if (getData.isNotEmpty) {
-        // getData.forEach((key, value) {
-        //   storeData.add(value);
-        //   },);
         List<dynamic> storeData = getData.values.toSet().toList();
 
         print('storeData....$storeData');
@@ -162,23 +154,24 @@ class FetchVehicleController extends GetxController {
                 .where((p0) =>
                     p0['entry_barcode'].toString().toLowerCase() ==
                     barcodeController.text.trim().toString().toLowerCase())
-                .toSet()
-                .toList())
+                .toSet().toList())
             : vehicalList.assignAll(storeData
                 .where((p0) =>
                     p0['vehicle_number'].toString().toLowerCase() ==
-                    vehicleController.text.trim().toString().toLowerCase())
-                .toSet()
-                .toList());
+                    vehicleController.text.trim().toString().toLowerCase()).toSet().toList());
         print('vehicalList..${vehicalList.length}');
 
         if (vehicalList.length > 1) {
-          Map<String, dynamic>? getFirstIndex =
-              getLatestVehicleByTime(vehicalList);
+          Map<String, dynamic>? getFirstIndex = getLatestVehicleByTime(vehicalList);
           vehicalList.clear();
           vehicalList.add(getFirstIndex);
           print('vehicalList..${vehicalList.length}');
+
+
         }
+
+        /// get Offer Again
+        refreshOfferList();
       }
       else {
         Get.snackbar("Error", errorSms,
@@ -246,12 +239,14 @@ class FetchVehicleController extends GetxController {
           customerMobile: mNoController.text.trim(),
           offerMode: "Offer",
         );
-
         if (resData != null) {
           print("🎉 API Success: $resData");
           if(resData.containsKey('success')){
             print('offer Applied successfully');
             showVoucherDialog();
+
+            /// get Offer Again
+            refreshOfferList();
           }
         }
         else {
@@ -361,6 +356,7 @@ class FetchVehicleController extends GetxController {
     barcodeText.value = '';
     vehicalText.value = '';
     mNoController.clear();
+    isActiveMno.value = false;
   }
 
   Future<Map<String, dynamic>?> storeRetailerAppVoucherDetail({
@@ -480,5 +476,69 @@ class FetchVehicleController extends GetxController {
     // TODO: implement dispose
 
     super.dispose();
+  }
+
+
+  void refreshOfferList() async {
+    // Call API
+    final response = await fetchOfferList();
+
+    if (response != null) {
+      List getOffer = response['offers']??[];
+
+      if(getOffer.isNotEmpty){
+        voucherList.clear();
+        voucherList.value = getOffer;
+      }
+      else{
+        Get.snackbar("Invalid", "Offer Not Available",
+            backgroundColor: Colors.red, colorText: Colors.white,duration: Duration(seconds: 1));
+      }
+    }
+  }
+
+
+  Future<Map<String, dynamic>?> fetchOfferList() async {
+    // 🔹 1. Check internet connection
+    if (!await isConnected()) {
+      Get.snackbar("No Internet", "Please check your connection.",
+          backgroundColor: Colors.red, colorText: Colors.white,duration: Duration(seconds: 1));
+      return null;
+    }
+
+    String username = await ApiHelper().box.get('username');
+    String pwd = await ApiHelper().box.get('pwd');
+
+    final body =  {
+    'username': username,
+    'password': pwd,
+    };
+
+    try {
+      print("➡️ Sending POST (form-data) to: ${ApiHelper.loginApi}");
+      print("📦 Request body: $body");
+
+      // 🔹 Use 'application/x-www-form-urlencoded' for form data
+      final response = await http.post(
+        Uri.parse(ApiHelper.loginApi),
+        headers: {
+          'Authorization': 'Bearer ${ApiHelper.token}',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'token': 'kql3_bhd45_mauq34',
+        },
+        body: body, // no jsonEncode here!
+      );
+
+      print("✅ Response Status: ${response.statusCode}");
+      print("✅ Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return jsonDecode(response.body);
+      }
+    } catch (e) {
+      return null;
+    }
   }
 }

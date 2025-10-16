@@ -16,6 +16,7 @@ class ApiHelper {
   static const String token = '1|KkllzTryrTkAbjGfvinbnhMQIY8m9CJXwY0N7EOy'; // replace with your actual token if needed
   static const String parkingSiteId = '3';
   static const String offerRedeemApiUrl = 'https://crm.secureparking.co.in/customer/accept_offer_redeem/';
+  static const String loginApi = 'https://crm.secureparking.co.in/retailer/login_offers/';
 
   /// Prod Url
   final RxMap<String,String> conutryUrl =
